@@ -2623,6 +2623,15 @@ margin-bottom: 25px;
 
 }
 
+
+/* Video */
+
+{.video.tut
+			float: right;
+			padding: 0 0 1em 1.5em;
+			top: 0.25em;
+}
+
 /* List */
 
 	ol {
