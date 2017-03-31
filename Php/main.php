@@ -1,56 +1,95 @@
 <?php
+if(isset($_POST['email'])) {
 
-// ======= Konfiguration:
+    // EDIT THE 2 LINES BELOW AS REQUIRED
+    $email_to = "timwidmer.email@gmail.com";
+    $email_subject = "Your email subject line";
 
-$mailTo = 'timwidmer.email@gmail.com';
-$mailFrom = '"demo-email"';
-$mailSubject = '"demo-name"';
-$category = '"demo-category"';
-$mailText = "demo-message";
-$humanverify = '"demo-copy"';
+    function died($error) {
+        // your error code can go here
+        echo "Ups! Ein Fehler ist aufgetreten!";
+        echo "Fehler:<br /><br />";
+        echo $error."<br /><br />";
+        echo "Bitte melde diesen Fehler an die Email: 'timwidmer7@gmail.com' <br/><br />";
+        die();
+    }
 
 
-// ======= Text der Mail aus den Formularfeldern erstellen:
+    // validation expected data exists
+    if(!isset($_POST['name']) ||
+        !isset($_POST['email']) ||
+        !isset($_POST['category']) ||
+        !isset($_POST['message']) ||
+        !isset($_POST['verify']) ||
+        died('Ups, da ist ein Fehler aufgetreten. :/');
+    }
 
-// Wenn Daten mit method="post" versendet wurden:
-if(isset($_POST)) {
-   // alle Formularfelder der Reihe nach durchgehen:
-   foreach($_POST as $name => $value) {
-      // Wenn der Feldwert aus mehreren Werten besteht:
-      // (z.B. <select multiple>)
-      if(is_array($value)) {
-          // "Feldname:" und Zeilenumbruch dem Mailtext hinzufügen
-          $mailText .= $name . ":\n ";
-          // alle Werte des Feldes abarbeiten
-          foreach($valueArray as $entry) {
-             // Einrückungsleerzeichen, Wert und Zeilenumbruch
-             // dem Mailtext hinzufügen
-             $mailText .= "   " . $value . "\n";
-          } // ENDE: foreach
-      } // ENDE: if
-      // Wenn der Feldwert ein einzelner Feldwert ist:
-      else {
-          // "Feldname:", Wert und Zeilenumbruch dem Mailtext hinzufügen
-          $mailText .= $name . ": " . $value . "\n";
-      } // ENDE: else
-   } // ENDE: foreach
-} // if
 
-// ======= Korrekturen vor dem Mailversand
 
-// Wenn PHP "Magic Quotes" vor Apostrophzeichen einfügt:
- if(get_magic_quotes_gpc()) {
-     // eventuell eingefügte Backslashes entfernen
-     $mailtext = stripslashes($mailtext);
- }
+    $name = $_POST['name']; // required
+    $email_from = $_POST['email']; // required
+    $category = $_POST['category'];
+    $message = $_POST['message'];
+    $verify = $_POST['verify'];
 
-// ======= Mailversand
+    $error_message = "Ups! Ein Fehler ist aufgetreten!";
+    $email_exp = '/^[A-Za-z0-9._%-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,4}$/';
 
-// Mail versenden und Versanderfolg merken
-$mailSent = @mail($mailTo, $mailSubject, $mailText, "Von: ".$mailFrom);
+  if(!preg_match($email_exp,$email)) {
+    $error_message .= 'Diese Email Adresse ist nicht gültig!<br />';
+  }
 
-// ======= Ende
+    $string_exp = "/^[A-Za-z .'-]+$/";
 
-exit();
+  if(!preg_match($string_exp,$name)) {
+    $error_message .= 'Bitte gebe ein Namen ein!<br />';
+  }
 
-?
+       if(function selected($category)) {
+         $error_message .= 'Bitte wähle eine Kategorie aus!<br />';
+       }
+
+  if(strlen($message) < 2) {
+    $error_message .= 'Bitte gebe eine Nachricht ein!<br />';
+  }
+
+              if(function selected($verify)) {
+         $error_message .= 'Bitte bestätige das du kein Roboter bist! ;)<br />';
+       }
+
+  if(strlen($error_message) > 0) {
+    died($error_message);
+  }
+
+
+    $email_message = "InformatikRosenau | Kontaktanfrage\n\n";
+
+
+    function clean_string($string) {
+      $bad = array("content-type","bcc:","to:","cc:","href");
+      return str_replace($bad,"",$string);
+    }
+
+
+
+    $email_message .= "Name: ".clean_string($name)."\n";
+    $email_message .= "Email: ".clean_string($email)."\n";
+    $email_message .= "Kategorie: ".clean_string($category)."\n";
+    $email_message .= "Nachricht: ".clean_string($message)."\n";
+
+// create email headers
+$headers = 'Von: '.$email_from."\r\n".
+'Reply-To: '.$email_from."\r\n" .
+'X-Mailer: PHP/' . phpversion();
+@mail($email_to, $email_subject, $email_message, $headers);
+?>
+
+<!-- include your own success html here -->
+
+Thank you for contacting us. We will be in touch with you very soon.
+
+<?php
+
+}
+?>
+
